@@ -1,23 +1,30 @@
-name: Build My Docker Image
+name: Build and Push My Docker Image
 
-# 1. THE TRIGGER: When should the robot wake up?
 on:
   push:
     branches:
-      - main  # Change this to 'main' if your default branch is called main!
+      - main  # Change to 'main' if your default branch is main!
 
-# 2. THE WORK: What should the robot do?
 jobs:
-  build-and-test:
-    # Give the robot a temporary, fresh Linux server to work on
+  build-and-publish:
     runs-on: ubuntu-latest
 
-    # 3. THE STEPS: The exact commands to run
     steps:
-      # Step A: Download your repository code into this temporary server
+      # Step A: Download your code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step B: Run the EXACT same Docker command you ran on your laptop!
+      # Step B: Use the keys to unlock your Docker Hub warehouse
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step C: Build the Image (Notice we added your username to the tag!)
       - name: Build the Docker Container
-        run: docker build -t my-first-website .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/my-first-website:latest .
+
+      # Step D: Upload it to the warehouse
+      - name: Push to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/my-first-website:latest

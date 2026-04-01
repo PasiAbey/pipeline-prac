@@ -21,10 +21,30 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step C: Build the Image (Notice we added your username to the tag!)
+      # Step C: Build the Image
       - name: Build the Docker Container
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/my-first-website:latest .
 
       # Step D: Upload it to the warehouse
       - name: Push to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/my-first-website:latest
+
+
+
+      # --- THE NEW CONTINUOUS DEPLOYMENT STEP ---
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            # 1. Download the newest image from the warehouse
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-first-website:latest
+            
+            # 2. Stop and remove the old running container (the || true ignores errors if it's the first run)
+            sudo docker stop my-live-website || true
+            sudo docker rm my-live-website || true
+            
+            # 3. Run the new container and give it a name so we can easily stop it next time!
+            sudo docker run -d --name my-live-website -p 80:80 ${{ secrets.DOCKER_USERNAME }}/my-first-website:latest

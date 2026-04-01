@@ -1,0 +1,23 @@
+name: Build My Docker Image
+
+# 1. THE TRIGGER: When should the robot wake up?
+on:
+  push:
+    branches:
+      - main  # Change this to 'main' if your default branch is called main!
+
+# 2. THE WORK: What should the robot do?
+jobs:
+  build-and-test:
+    # Give the robot a temporary, fresh Linux server to work on
+    runs-on: ubuntu-latest
+
+    # 3. THE STEPS: The exact commands to run
+    steps:
+      # Step A: Download your repository code into this temporary server
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step B: Run the EXACT same Docker command you ran on your laptop!
+      - name: Build the Docker Container
+        run: docker build -t my-first-website .

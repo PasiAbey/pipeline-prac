@@ -33,7 +33,7 @@ jobs:
 
       # --- THE NEW CONTINUOUS DEPLOYMENT STEP ---
       - name: Deploy to AWS EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@main
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USERNAME }}
